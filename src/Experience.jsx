@@ -24,7 +24,9 @@ export default function Experience() {
   //   });
 
   const {
-    metalness,
+    color,
+    lightColor,
+    wireframe,
     speed,
     noiseDensity,
     visible,
@@ -34,7 +36,11 @@ export default function Experience() {
     colorPhase,
     colourful,
   } = useControls("Blob", {
-    metalness: { min: 0, max: 1, value: 0.0 },
+    color: {
+      value: "#c1c1c1",
+    },
+    lightColor: "#ff6600",
+    wireframe: false,
     noiseIntensity: {
       min: 0,
       max: 2,
@@ -111,7 +117,7 @@ export default function Experience() {
   });
 
   const { perfVisible } = useControls("debug", {
-    perfVisible: true,
+    perfVisible: false,
   });
 
   const customUniforms = {
@@ -205,8 +211,8 @@ export default function Experience() {
         position={[-1, 2, 3]}
         intensity={1.5}
       /> */}
-      <pointLight ref={lightRef1} color={0xff0000} position={[10, 10, 10]} />
-      <pointLight ref={lightRef2} color={0xff6666} position={[-6, -6, 4]} />
+      <pointLight ref={lightRef1} color={lightColor} position={[10, 10, 10]} />
+      <pointLight ref={lightRef2} color={lightColor} position={[-6, -6, 4]} />
       <ambientLight color={0xffffff} intensity={0.5} />
 
       <mesh
@@ -221,14 +227,15 @@ export default function Experience() {
           //   customUniforms.uNoiseIntensity.value += 0.2;
         }}
       >
-        <sphereGeometry args={[1, 256, 256]} />
+        <sphereGeometry args={[1, 128, 128]} />
 
         <meshStandardMaterial
-          color={0xc1c1c1}
+          color={color}
           roughness={0.1}
           //   metalness={metalness}
           envMapIntensity={0.2}
           onBeforeCompile={onBeforeCompile}
+          wireframe={wireframe}
         />
         {/* <meshNormalMaterial onBeforeCompile={onBeforeCompile} /> */}
       </mesh>

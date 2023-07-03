@@ -10,6 +10,18 @@ const root = ReactDOM.createRoot(document.querySelector("#root"));
 root.render(
   <StrictMode>
     <Leva collapsed />
+    <h1
+      style={{
+        position: "fixed",
+        top: "16px",
+        left: "16px",
+        fontFamily: "sans-serif",
+        fontSize: "64px",
+        zIndex: 9999999,
+      }}
+    >
+      YAYA
+    </h1>
     <Canvas
       camera={{
         fov: 45,
