@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitControls, useEnvironment, Environment } from "@react-three/drei";
 import { useControls, button } from "leva";
@@ -13,20 +13,69 @@ console.log(twistVertexShaderCommon, twistFragmentShader);
 
 export default function Experience() {
   const blobRef = useRef();
+  const materialRef = useRef();
   const lightRef1 = useRef();
   const lightRef2 = useRef();
 
   const [hovered, setHovered] = useState(false);
-  const [density, setDensity] = useState(0);
+  const [colore, setColore] = useState("#c1c1c1");
 
   //   const envMap = useEnvironment({
   //     preset: "city",
   //   });
 
+  const { color, lightColor1, lightColor2, metalness, roughness, wireframe } =
+    useControls("Material", {
+      color: {
+        value: "#c1c1c1",
+        onChange: (v) => {
+          console.log(v);
+          materialRef.current.color.setStyle(v);
+        },
+      },
+      lightColor1: {
+        value: "#ff6600",
+        onChange: (v) => [
+          lightRef1.current.color.setStyle(v),
+          // lightRef2.current.color.setStyle(v)
+        ],
+      },
+      lightColor2: {
+        value: "#ffffff",
+        onChange: (v) => [
+          lightRef2.current.color.setStyle(v),
+          // lightRef2.current.color.setStyle(v)
+        ],
+      },
+      metalness: {
+        min: 0,
+        max: 1,
+        value: 0.1,
+        step: 0.01,
+        onChange: (v) => {
+          // imperatively update the world after Leva input changes
+          materialRef.current.metalness = v;
+        },
+      },
+      roughness: {
+        min: 0,
+        max: 1,
+        value: 0.15,
+        step: 0.01,
+        onChange: (v) => {
+          // imperatively update the world after Leva input changes
+          materialRef.current.roughness = v;
+        },
+      },
+      wireframe: {
+        value: false,
+        onChange: (v) => {
+          materialRef.current.wireframe = v;
+        },
+      },
+    });
+
   const {
-    color,
-    lightColor,
-    wireframe,
     speed,
     noiseDensity,
     visible,
@@ -35,12 +84,7 @@ export default function Experience() {
     amplitude,
     colorPhase,
     colourful,
-  } = useControls("Blob", {
-    color: {
-      value: "#c1c1c1",
-    },
-    lightColor: "#ff6600",
-    wireframe: false,
+  } = useControls("Shader", {
     noiseIntensity: {
       min: 0,
       max: 2,
@@ -110,10 +154,6 @@ export default function Experience() {
         customUniforms.uColorful.value = +v;
       },
     },
-    //   clickMe: button(() => {
-    //     console.log("ok");
-    //   }),
-    //   choice: { options: ["a", "b", "c"] },
   });
 
   const { perfVisible } = useControls("debug", {
@@ -136,10 +176,13 @@ export default function Experience() {
   useFrame(({ clock }) => {
     const elapsedTime = clock.elapsedTime;
     customUniforms.uTime.value = elapsedTime;
+    console.log(customUniforms.uTime.value);
     // console.log(noiseDensity);
     //blobRef.current.rotation.y = elapsedTime * 0.25;
     lightRef1.current.position.x = 25 * Math.cos(elapsedTime);
     lightRef2.current.position.z = 25 * Math.sin(elapsedTime);
+    // console.log(noiseIntensity);
+    // materialRef.current.needsUpdate = true;
   });
 
   const onBeforeCompile = (shader) => {
@@ -211,8 +254,8 @@ export default function Experience() {
         position={[-1, 2, 3]}
         intensity={1.5}
       /> */}
-      <pointLight ref={lightRef1} color={lightColor} position={[10, 10, 10]} />
-      <pointLight ref={lightRef2} color={lightColor} position={[-6, -6, 4]} />
+      <pointLight ref={lightRef1} color={lightColor1} position={[10, 10, 10]} />
+      <pointLight ref={lightRef2} color={lightColor2} position={[-6, -6, 4]} />
       <ambientLight color={0xffffff} intensity={0.5} />
 
       <mesh
@@ -231,11 +274,12 @@ export default function Experience() {
 
         <meshStandardMaterial
           color={color}
-          roughness={0.1}
-          //   metalness={metalness}
+          roughness={roughness}
+          metalness={metalness}
           envMapIntensity={0.2}
           onBeforeCompile={onBeforeCompile}
           wireframe={wireframe}
+          ref={materialRef}
         />
         {/* <meshNormalMaterial onBeforeCompile={onBeforeCompile} /> */}
       </mesh>
